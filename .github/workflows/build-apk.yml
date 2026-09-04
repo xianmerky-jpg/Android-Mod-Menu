@@ -30,9 +30,18 @@ jobs:
           sdkmanager --install "platforms;android-36"
           sdkmanager --install "build-tools;35.0.0"
 
-      - name: Fix Gradle Wrapper
+      - name: Fix Gradle Wrapper to version 8.13
         run: |
           mkdir -p gradle/wrapper
+          cat > gradle/wrapper/gradle-wrapper.properties << 'EOT'
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-all.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+EOT
           curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.13.0/gradle/wrapper/gradle-wrapper.jar
           chmod +x gradlew
 
