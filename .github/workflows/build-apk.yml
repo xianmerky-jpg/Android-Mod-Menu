@@ -23,18 +23,21 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NDK
+      - name: Install NDK and build tools
         run: |
           sdkmanager --install "ndk;26.3.11579264"
           sdkmanager --install "cmake;3.22.1"
           sdkmanager --install "platforms;android-36"
           sdkmanager --install "build-tools;35.0.0"
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Fix Gradle Wrapper
+        run: |
+          mkdir -p gradle/wrapper
+          curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.13.0/gradle/wrapper/gradle-wrapper.jar
+          chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --info
+        run: ./gradlew assembleDebug --stacktrace
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/26.3.11579264
 
