@@ -27,21 +27,27 @@ jobs:
         run: |
           sdkmanager --install "ndk;26.3.11579264"
           sdkmanager --install "cmake;3.22.1"
-          sdkmanager --install "platforms;android-36"
-          sdkmanager --install "build-tools;35.0.0"
+          sdkmanager --install "platforms;android-34"
+          sdkmanager --install "build-tools;34.0.0"
 
-      - name: Fix Gradle Wrapper to version 8.13
+      - name: Force compatible Gradle + AGP versions
         run: |
           mkdir -p gradle/wrapper
+
+          # Force Gradle 8.7 (very stable)
           echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
           echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-all.zip" >> gradle/wrapper/gradle-wrapper.properties
-          echo "networkTimeout=10000" >> gradle/wrapper/gradle-wrapper.properties
-          echo "validateDistributionUrl=true" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-all.zip" >> gradle/wrapper/gradle-wrapper.properties
           echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
           echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.13.0/gradle/wrapper/gradle-wrapper.jar
+
+          curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.7.0/gradle/wrapper/gradle-wrapper.jar
           chmod +x gradlew
+
+          # Force Android Gradle Plugin 8.5.2 (compatible with Gradle 8.7)
+          sed -i 's/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/g' build.gradle || true
+          sed -i 's/compileSdkVersion [0-9]*/compileSdkVersion 34/g' app/build.gradle || true
+          sed -i 's/targetSdkVersion [0-9]*/targetSdkVersion 34/g' app/build.gradle || true
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
